@@ -18,13 +18,28 @@ app.get("/", function (req, res) {
   res.sendFile(__dirname + '/views/index.html');
 });
 
+// Use route parameters
+app.get('/api/:date?', function (req, res) {
+  const dateParam = req.params?.date;
+  let date;
 
-// your first API endpoint... 
-app.get("/api/hello", function (req, res) {
-  res.json({greeting: 'hello API'});
+  if(!dateParam) {
+    date = new Date()
+  } else if (!isNaN(dateParam)) {
+    date = new Date(Number(dateParam));
+  } else {
+    date = new Date(dateParam)
+  }
+  
+  const unix = date.getTime();
+
+  if(isNaN(unix)) {
+  return res.json({ error : "Invalid Date" })
+  }
+
+  const utc = date.toUTCString();
+  return res.json({unix, utc})
 });
-
-
 
 // Listen on port set in environment variable or default to 3000
 var listener = app.listen(process.env.PORT || 3000, function () {
